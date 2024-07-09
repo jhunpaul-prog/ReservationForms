@@ -1,6 +1,5 @@
-// src/firebase.js (or firebase.jsx)
-import { initializeApp } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCW5BXRki65Mun8bqHaQBR5HFLH6x-Bvg0",
@@ -10,13 +9,11 @@ const firebaseConfig = {
   storageBucket: "sambag2-8663a.appspot.com",
   messagingSenderId: "991681556862",
   appId: "1:991681556862:web:52edae80b4e97fae88432f",
-  measurementId: "G-63M71EGKYL"
+  measurementId: "G-63M71EGKYL",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Realtime Database
 const db = getDatabase(app);
 
-export { db };
+export { db, ref, set };
