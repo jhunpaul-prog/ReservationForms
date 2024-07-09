@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { db, ref, set } from "./DATABASE/firebase";
+import p4 from "./assets/GCash.png";
+import p5 from "./assets/onsit.png";
 
 const ReservationForm = () => {
   const [formData, setFormData] = useState({
@@ -8,13 +10,16 @@ const ReservationForm = () => {
     date: "",
     time: "",
     guests: 1,
+    paymentMethod: "",
   });
   const [step, setStep] = useState(1);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  const availableTimes = [
+    "08:00 AM - 09:00 AM",
+    "10:00 AM - 11:00 AM",
+    "01:00 PM - 02:00 PM",
+    "03:00 PM - 04:00 PM",
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +30,14 @@ const ReservationForm = () => {
       try {
         await set(ref(db, "reservations/" + reservationId), formData);
         alert("Reservation submitted successfully!");
-        setFormData({ name: "", email: "", date: "", time: "", guests: 1 });
+        setFormData({
+          name: "",
+          email: "",
+          date: "",
+          time: "",
+          guests: 1,
+          paymentMethod: "",
+        });
         setStep(1);
       } catch (error) {
         console.error("Error adding document: ", error);
@@ -47,7 +59,9 @@ const ReservationForm = () => {
                 type="text"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -60,7 +74,9 @@ const ReservationForm = () => {
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -73,23 +89,35 @@ const ReservationForm = () => {
                 type="date"
                 name="date"
                 value={formData.date}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
                 required
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
-                Time:
+                Available Time:
               </label>
-              <input
-                type="time"
+              <select
                 name="time"
                 value={formData.time}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, time: e.target.value })
+                }
                 required
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
+              >
+                <option value="" disabled>
+                  Select a time
+                </option>
+                {availableTimes.map((time) => (
+                  <option key={time} value={time}>
+                    {time}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
@@ -99,7 +127,9 @@ const ReservationForm = () => {
                 type="number"
                 name="guests"
                 value={formData.guests}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, guests: e.target.value })
+                }
                 min="1"
                 required
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -113,8 +143,39 @@ const ReservationForm = () => {
             <h2 className="text-lg font-medium text-gray-700">
               Payment Options
             </h2>
-            <p className="text-sm text-gray-500">Payment details go here.</p>
-            {/* Add your payment form fields */}
+            <p className="text-sm text-gray-500 mb-4">
+              Please select your payment method.
+            </p>
+            <div className="flex flex-col gap-4">
+              <label className="flex items-center font-semibold text-gray-600">
+                <input
+                  type="radio"
+                  name="payment"
+                  value="gcash"
+                  checked={formData.paymentMethod == "gcash"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, paymentMethod: e.target.value })
+                  }
+                  className="form-radio"
+                />
+                <img src={p4} alt="GCash" className="h-20 ml-2" />
+                <p className="pl-5">Gcash</p>
+              </label>
+              <label className="flex items-center font-semibold text-gray-600">
+                <input
+                  type="radio"
+                  name="payment"
+                  value="onsite"
+                  checked={formData.paymentMethod == "onsite"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, paymentMethod: e.target.value })
+                  }
+                  className="form-radio"
+                />
+                <img src={p5} alt="Onsite" className="h-20 ml-2" />
+                <p className="pl-5">Onsite Payment</p>
+              </label>
+            </div>
           </div>
         );
       case 3:
@@ -124,7 +185,12 @@ const ReservationForm = () => {
             <p className="text-sm text-gray-500">
               Please review your details before submitting.
             </p>
-            {/* Add your confirmation details */}
+            <p className="">{formData.name}</p>
+            <p className="">{formData.email}</p>
+            <p className="">{formData.date}</p>
+            <p className="">{formData.time}</p>
+            <p className="">{formData.guests}</p>
+            <p className="">{formData.paymentMethod}</p>
           </div>
         );
       default:
@@ -191,40 +257,52 @@ const ReservationForm = () => {
             </span>
           </li>
           <li className="flex items-center">
-            <span className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full lg:h-12 lg:w-12 dark:bg-gray-700 shrink-0">
+            <span
+              className={`flex items-center justify-center w-10 h-10 ${
+                step > 3 ? "bg-green-400" : "bg-gray-200"
+              } rounded-full lg:h-12 lg:w-12 shrink-0`}
+            >
               <svg
-                className="w-4 h-4 text-gray-500 lg:w-5 lg:h-5 dark:text-gray-100"
+                className={`w-4 h-4 ${
+                  step > 3 ? "text-white" : "text-gray-500"
+                }`}
                 xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 18 20"
+                fill="none"
+                viewBox="0 0 16 16"
               >
-                <path d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2ZM7 2h4v2H7V2Zm2 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm6-4H3V7h12v6Z" />
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 8.417 5.724 13 15 4"
+                />
               </svg>
             </span>
           </li>
         </ol>
       </div>
-
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-lg"
+        className="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg"
       >
         {renderStepContent(step)}
-        <div className="flex justify-between">
+        <div className="mt-8 flex justify-between">
           {step > 1 && (
             <button
               type="button"
               onClick={() => setStep(step - 1)}
-              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="py-2 px-4 bg-gray-200 text-gray-700 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               Back
             </button>
           )}
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="py-2 px-4 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={step === 2 && formData.paymentMethod === ""}
           >
-            {step === 3 ? "Submit" : "Next"}
+            {step < 3 ? "Next" : "Submit"}
           </button>
         </div>
       </form>
